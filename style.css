@@ -1,0 +1,680 @@
+/* Mark Pro (FFMarkWebPro) ist eine lizenzierte INNOQ-Marken-Schrift - die
+   Dateien duerfen nicht ins (oeffentliche) Repo, deshalb wird hier auf die
+   von INNOQ selbst gehosteten Webfont-Dateien verlinkt (dieselben, die auch
+   innoq.style verwendet). Beide unter dem gemeinsamen Familiennamen "Mark
+   Pro" mit passendem font-weight, damit der Rest des CSS unveraendert
+   font-weight: 400/800 nutzen kann. */
+@font-face {
+  font-family: "Mark Pro";
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  src: url("https://assets.innoq.com/fonts/350ED6_4_unhinted_0.woff2?cachebuster=7d0a3995eec718ff34fa844413298153") format("woff2"),
+    url("https://assets.innoq.com/fonts/350ED6_4_unhinted_0.woff?cachebuster=7d0a3995eec718ff34fa844413298153") format("woff"),
+    url("https://assets.innoq.com/fonts/350ED6_4_unhinted_0.ttf?cachebuster=7d0a3995eec718ff34fa844413298153") format("truetype");
+}
+@font-face {
+  font-family: "Mark Pro";
+  font-display: swap;
+  font-weight: 800;
+  font-style: normal;
+  src: url("https://assets.innoq.com/fonts/350ED6_6_unhinted_0.woff2?cachebuster=7d0a3995eec718ff34fa844413298153") format("woff2"),
+    url("https://assets.innoq.com/fonts/350ED6_6_unhinted_0.woff?cachebuster=7d0a3995eec718ff34fa844413298153") format("woff"),
+    url("https://assets.innoq.com/fonts/350ED6_6_unhinted_0.ttf?cachebuster=7d0a3995eec718ff34fa844413298153") format("truetype");
+}
+
+:root {
+  --color-primary: #F2994A;
+  --color-dark: #0B3D42;
+  --sidebar-bg: #082e33;
+  --sidebar-bg-raised: rgba(255, 255, 255, 0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+  --sidebar-fg: #f3f7f7;
+  --sidebar-fg-muted: rgba(243, 247, 247, 0.6);
+  --page-bg: #eef1f1;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(9, 41, 46, 0.08);
+  --shadow-md: 0 8px 24px rgba(9, 41, 46, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: "Mark Pro", Arial, sans-serif;
+  background: var(--page-bg);
+  color: var(--color-dark);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* kein Fenster-Scrollbalken - Sidebar und Vorschau scrollen jeweils fuer sich */
+}
+
+button, input, select {
+  font-family: inherit;
+}
+
+/* ---------- Gesamtlayout: Formular links, Vorschau rechts, beide scrollen
+   unabhaengig voneinander innerhalb der verbleibenden Hoehe unter dem Header
+   (statt zusaetzlich das ganze Fenster scrollen zu lassen -> ein Scrollbalken
+   pro Bereich statt einem doppelten). ---------- */
+.layout {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0; /* wichtig: sonst wuerden die Kinder nicht schrumpfen/scrollen */
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* ---------- Ziehbarer Trenner zwischen Sidebar und Vorschau ---------- */
+.panel-resizer {
+  flex: 0 0 8px;
+  width: 8px;
+  cursor: col-resize;
+  background: var(--sidebar-border);
+  border-left: 1px solid rgba(0, 0, 0, 0.15);
+  transition: background 0.12s ease;
+}
+.panel-resizer:hover,
+.panel-resizer.is-dragging {
+  background: var(--color-primary);
+}
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+body.is-resizing .icon-picker-dialog { pointer-events: none; }
+
+/* ---------- Gemeinsamer Header (volle Breite, ueber Sidebar + Vorschau) ---------- */
+.app-header {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 18px 28px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.app-header h1 {
+  font-size: 18px;
+  margin: 0 20px 0 0;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.app-header button {
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  box-shadow: 0 2px 6px rgba(242, 153, 74, 0.35);
+}
+.app-header button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(242, 153, 74, 0.4);
+}
+.app-header button:active { transform: translateY(0); }
+.app-header button.secondary {
+  background: #fff;
+  color: var(--color-dark);
+  border-color: #d7dede;
+  box-shadow: none;
+}
+.app-header button.secondary:hover {
+  border-color: var(--color-dark);
+  box-shadow: var(--shadow-sm);
+}
+.app-header .hint {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #6b7878;
+  flex-basis: 100%;
+}
+
+/* ---------- Einstellungsformular (immer offene Seitenleiste links) ---------- */
+.settings-panel {
+  flex: 0 0 600px;
+  width: 600px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-fg);
+  padding: 28px 24px 40px;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.18);
+}
+.settings-panel::-webkit-scrollbar { width: 10px; }
+.settings-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+.settings-panel h2 {
+  font-size: 12px;
+  margin: 0 0 20px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.settings-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px 16px;
+}
+.settings-grid label,
+.settings-panel fieldset label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--sidebar-fg-muted);
+}
+.settings-grid input,
+.settings-grid select,
+.settings-panel fieldset input {
+  font-size: 13.5px;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-dark);
+  font-weight: 600;
+}
+.settings-grid input:focus,
+.settings-grid select:focus,
+.settings-panel fieldset input:focus,
+.icon-picker-head input:focus,
+.icon-picker-head select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(242, 153, 74, 0.35);
+}
+.settings-grid input[type="color"] {
+  padding: 3px;
+  height: 36px;
+  cursor: pointer;
+}
+.settings-languages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.settings-panel fieldset {
+  border: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg-raised);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-panel legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 6px;
+  color: var(--sidebar-fg);
+}
+.settings-panel legend .f-remove-language {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.add-language-row {
+  display: flex;
+  gap: 8px;
+}
+.add-language-row input {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-dark);
+}
+.add-language-row button {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px dashed var(--sidebar-border);
+  background: transparent;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+}
+.add-language-row button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.settings-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.topic-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.topic-row .f-topic-text {
+  flex: 1;
+  min-width: 0;
+}
+.icon-pick-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 112px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: box-shadow 0.12s ease;
+}
+.icon-pick-btn:hover { box-shadow: 0 0 0 2px rgba(242, 153, 74, 0.45); }
+.icon-pick-thumb {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.icon-pick-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.icon-btn {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: #fff;
+  color: var(--color-dark);
+  cursor: pointer;
+  line-height: 1;
+  font-weight: 700;
+  transition: box-shadow 0.12s ease;
+}
+.icon-btn:hover { box-shadow: 0 0 0 2px rgba(242, 153, 74, 0.45); }
+.f-add-topic {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px dashed var(--sidebar-border);
+  background: transparent;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+}
+.f-add-topic:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid var(--sidebar-border);
+}
+.settings-actions button {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--sidebar-border);
+  background: transparent;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+}
+.settings-actions button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.settings-actions button#f-export {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.settings-actions button#f-export:hover { color: #fff; opacity: 0.9; }
+
+/* ---------- Icon-Picker-Dialog ---------- */
+.icon-picker-dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: min(760px, 92vw);
+  max-height: 80vh;
+  box-shadow: var(--shadow-md);
+}
+.icon-picker-dialog::backdrop {
+  background: rgba(8, 30, 33, 0.55);
+}
+.icon-picker-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid #e6eaea;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.icon-picker-head input[type="text"] {
+  flex: 1;
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid #d7dede;
+  border-radius: var(--radius-sm);
+}
+.icon-picker-head select {
+  font-size: 13px;
+  padding: 10px;
+  border: 1px solid #d7dede;
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.icon-picker-count {
+  padding: 10px 18px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a9696;
+}
+.icon-picker-load-all {
+  display: block;
+  margin: 0 18px 16px;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-primary);
+  background: #fff;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+.icon-picker-load-all:hover { background: #fff6ee; }
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 6px;
+  padding: 18px;
+  overflow-y: auto;
+  max-height: calc(80vh - 96px);
+}
+.icon-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+.icon-result:hover {
+  border-color: var(--color-primary);
+  background: #fff6ee;
+}
+.icon-result img {
+  width: 32px;
+  height: 32px;
+}
+.icon-result span {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #556262;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.preview-label .dim {
+  font-weight: 600;
+  color: #98a3a3;
+}
+
+/* ---------- Leseansicht: schlichter Text zum Gegenlesen, keine Drehung/Papierform ---------- */
+.read-view {
+  width: 210mm;
+  max-width: 100%;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+}
+.read-view-col h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+.read-view-role {
+  font-weight: 600;
+  color: #8a9696;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.read-view-greeting {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.read-view-greeting strong { color: var(--color-primary); }
+.read-view-intro {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+.read-view-topics {
+  margin: 0;
+  padding-left: 20px;
+}
+.read-view-topics li {
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+/* ---------- Screen preview layout ---------- */
+.preview-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 40px 24px 72px;
+}
+.preview-label {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #556262;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* ---------- Page containers (represent physical paper) ---------- */
+.page {
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+.page-a4 {
+  width: 210mm;
+  height: 297mm;
+  display: flex;
+  flex-direction: column;
+}
+.page-a6 {
+  width: 105mm;
+  height: 148mm;
+}
+
+/* ---------- A4 fold sheet: Vorder- und Rückseite nebeneinander (links/rechts),
+   damit senkrecht in der Mitte gefaltet auf DIN A6 zusammengelegt werden kann.
+   Der untere Teil des A4-Bogens bleibt frei und wird abgeschnitten. ---------- */
+.a4-fold-row {
+  position: relative;
+  width: 210mm;
+  height: 148mm;
+  display: flex;
+}
+.a4-half {
+  width: 105mm;
+  height: 148mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fold-line-vertical {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 105mm;
+  width: 0;
+  border-left: 0.5mm dashed #999;
+}
+.fold-line-vertical span {
+  position: absolute;
+  left: -3.2mm;
+  top: 50%;
+  transform-origin: center;
+  transform: translateY(-50%) rotate(-90deg);
+  white-space: nowrap;
+  background: #fff;
+  padding: 0 3mm;
+  font-size: 3mm;
+  color: #777;
+  font-weight: 800;
+}
+
+/* ---------- Badge card (one A6 side) ---------- */
+.badge-card-slot {
+  width: 105mm;
+  height: 148mm;
+  outline: 0.3mm dashed #aaa; /* Schnittkante */
+  outline-offset: 0;
+}
+/* Rückseite auf dem A4-Faltbogen wird um 180° gedreht gedruckt: erst dadurch
+   landet der Falz nach dem Falten oben und beide Seiten stehen fürs Lanyard
+   richtig herum. */
+.badge-card-slot--rotated {
+  transform: rotate(180deg);
+}
+.badge-card {
+  width: 105mm;
+  height: 148mm;
+  padding: 7mm 6mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  background: #fff;
+}
+
+.badge-logo-img {
+  height: 9mm;
+  width: auto;
+}
+
+.badge-greeting {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  font-size: 6.5mm;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.badge-greeting .prefix { color: var(--color-dark); }
+.badge-greeting .name { color: var(--color-primary); }
+.badge-greeting img.icon { width: 9mm; height: 9mm; }
+
+.badge-intro {
+  font-size: 4.6mm;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.badge-topics {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2mm;
+}
+.badge-topic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2mm;
+  font-size: 4mm;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+.badge-topic img.icon {
+  width: 6mm;
+  height: 6mm;
+  flex-shrink: 0;
+}
+
+.badge-footer {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+}
+.badge-footer img.icon {
+  width: 9mm;
+  height: auto;
+}
+
+/* ---------- Print ---------- */
+@media print {
+  html, body { height: auto; overflow: visible; }
+  body { background: none; margin: 0; display: block; }
+  .app-header, .preview-label, .screen-only { display: none !important; }
+  .layout { display: block; }
+  .main { overflow: visible; }
+  .preview-area { padding: 0; gap: 0; }
+  .page { box-shadow: none; margin: 0; }
+
+  html:not([data-printing="a4fold"]) .page-a4fold,
+  html:not([data-printing="a6front"]) .page-a6front,
+  html:not([data-printing="a6back"]) .page-a6back {
+    display: none;
+  }
+}

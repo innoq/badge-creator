@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Konferenz-Badge-Ersteller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <style id="dynamic-page-size"></style>
+</head>
+<body>
+
+  <div class="app-header screen-only">
+    <h1>Konferenz-Badge-Ersteller</h1>
+    <button onclick="printView('a4fold')">A4 drucken (Falt-Badge)</button>
+    <button class="secondary" onclick="printView('a6front')">A6 Vorderseite drucken</button>
+    <button class="secondary" onclick="printView('a6back')">A6 Rückseite drucken</button>
+    <span class="hint">Vorder- und Rückseite liegen auf dem A4-Bogen nebeneinander; die Rückseite ist automatisch um 180° gedreht, damit sie nach dem senkrechten Falten in der Mitte richtig herum steht. Export als PDF über den Drucken-Dialog ("Als PDF speichern"). Logo und Icons liegen lokal (icons/) – keine Internetverbindung zum Drucken nötig.</span>
+  </div>
+
+  <div class="layout">
+
+    <aside class="settings-panel screen-only">
+      <h2>Inhalte bearbeiten</h2>
+      <form id="settings-form" autocomplete="off">
+        <div class="settings-grid">
+          <label>Name<input type="text" id="f-person-name"></label>
+          <label>Logo<select id="f-logo"></select></label>
+          <label>Icon-Stil<select id="f-icon-style"></select></label>
+          <label>Akzentfarbe<input type="color" id="f-color-primary"></label>
+          <label>Dunkle Farbe<input type="color" id="f-color-dark"></label>
+          <label>Vorderseite (Sprache)<select id="f-front-lang"></select></label>
+          <label>Rückseite (Sprache)<select id="f-back-lang"></select></label>
+        </div>
+
+        <div class="settings-languages" id="language-fieldsets"></div>
+
+        <div class="add-language-row">
+          <input type="text" id="f-new-lang-code" placeholder="Code (z.B. fr)" maxlength="5">
+          <input type="text" id="f-new-lang-label" placeholder="Name (z.B. Französisch)">
+          <button type="button" id="f-add-language">+ Sprache</button>
+        </div>
+
+        <div class="settings-actions">
+          <button type="button" id="f-export">Als JSON exportieren</button>
+          <button type="button" class="secondary" id="f-import">Aus JSON importieren</button>
+          <input type="file" id="f-import-file" accept="application/json" hidden>
+          <button type="button" class="secondary" id="f-reset">Auf Standard zurücksetzen</button>
+        </div>
+      </form>
+    </aside>
+
+    <div class="panel-resizer screen-only" id="panel-resizer" title="Breite ziehen zum Anpassen"></div>
+
+    <div class="main">
+
+      <div class="preview-area">
+
+        <div>
+          <div class="preview-label screen-only">Leseansicht &ndash; zum Prüfen der Texte (unabhängig von Drehung/Falz)</div>
+          <div class="read-view screen-only" id="read-view"></div>
+        </div>
+
+        <div>
+          <div class="preview-label screen-only">DIN A4 &ndash; zum Falten (links Vorderseite, rechts Rückseite) <span class="dim">210 &times; 297 mm</span></div>
+          <div class="page page-a4 page-a4fold">
+            <div class="a4-fold-row">
+              <div class="a4-half a4-half-front">
+                <div class="badge-card-slot" id="a4-front-slot"></div>
+              </div>
+              <div class="fold-line-vertical"><span>hier falten &middot; fold here</span></div>
+              <div class="a4-half a4-half-back">
+                <div class="badge-card-slot badge-card-slot--rotated" id="a4-back-slot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="preview-label screen-only">DIN A6 Einzeldruck &ndash; Vorderseite <span class="dim">105 &times; 148 mm</span></div>
+          <div class="page page-a6 page-a6front" id="a6-front-page"></div>
+        </div>
+
+        <div>
+          <div class="preview-label screen-only">DIN A6 Einzeldruck &ndash; Rückseite <span class="dim">105 &times; 148 mm</span></div>
+          <div class="page page-a6 page-a6back" id="a6-back-page"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <dialog id="icon-picker-dialog" class="icon-picker-dialog">
+    <div class="icon-picker-head">
+      <input type="text" id="icon-picker-search" placeholder="Icon suchen (deutsch oder englisch) …">
+      <select id="icon-picker-category"></select>
+      <button type="button" id="icon-picker-close" class="icon-btn" title="Schließen" aria-label="Schließen">✕</button>
+    </div>
+    <div id="icon-picker-count" class="icon-picker-count"></div>
+    <div id="icon-picker-grid" class="icon-picker-grid"></div>
+    <button type="button" id="icon-picker-load-all" class="icon-picker-load-all" hidden></button>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="fluent-emoji-index.js"></script>
+  <script src="emoji-search.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
